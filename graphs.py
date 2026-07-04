@@ -1,13 +1,27 @@
+import os
+os.environ.setdefault("PYQTGRAPH_QT_LIB", "PyQt5")
+
 import pyqtgraph as pg
 from collections import deque
+
+
+ACCENT = "#5ee6c8"
+BG_DARK = "#0d0f14"
+GRID_COLOR = "#252b3a"
+
+# Couleurs cohérentes avec le thème du dashboard
+COLOR_X = "#e65e5e"   # rouge doux
+COLOR_Y = "#5ee6c8"   # accent (vert/cyan)
+COLOR_Z = "#5e8ee6"   # bleu doux
 
 
 class IMUGraphs:
 
     def __init__(self, maxlen=500):
 
-        pg.setConfigOption("background", "#0d0f14")
-        pg.setConfigOption("foreground", "w")
+        pg.setConfigOptions(antialias=True)
+        pg.setConfigOption("background", BG_DARK)
+        pg.setConfigOption("foreground", "#e6e9f0")
 
         self.maxlen = maxlen
 
@@ -25,32 +39,34 @@ class IMUGraphs:
 
         # Window
         self.win = pg.GraphicsLayoutWidget(title="IMU Live Dashboard")
-        self.win.resize(1200, 800)
-
-        self.win.setWindowTitle("MPU6050 Live Viewer")
+        self.win.setBackground(BG_DARK)
 
         # ---------------- ACCEL ----------------
-        self.p1 = self.win.addPlot(title="Accelerometer (g)")
-        self.p1.showGrid(x=True, y=True, alpha=0.3)
-        self.p1.addLegend()
+        self.p1 = self.win.addPlot(title="Accéléromètre (g)")
+        self._style_plot(self.p1)
 
-        self.curve_ax = self.p1.plot(pen="r", name="Ax")
-        self.curve_ay = self.p1.plot(pen="g", name="Ay")
-        self.curve_az = self.p1.plot(pen="b", name="Az")
+        self.curve_ax = self.p1.plot(pen=pg.mkPen(COLOR_X, width=2), name="Ax")
+        self.curve_ay = self.p1.plot(pen=pg.mkPen(COLOR_Y, width=2), name="Ay")
+        self.curve_az = self.p1.plot(pen=pg.mkPen(COLOR_Z, width=2), name="Az")
 
         # ---------------- GYRO ----------------
         self.win.nextRow()
 
         self.p2 = self.win.addPlot(title="Gyroscope (deg/s)")
-        self.p2.showGrid(x=True, y=True, alpha=0.3)
-        self.p2.addLegend()
+        self._style_plot(self.p2)
 
-        self.curve_gx = self.p2.plot(pen="r", name="Gx")
-        self.curve_gy = self.p2.plot(pen="g", name="Gy")
-        self.curve_gz = self.p2.plot(pen="b", name="Gz")
+        self.curve_gx = self.p2.plot(pen=pg.mkPen(COLOR_X, width=2), name="Gx")
+        self.curve_gy = self.p2.plot(pen=pg.mkPen(COLOR_Y, width=2), name="Gy")
+        self.curve_gz = self.p2.plot(pen=pg.mkPen(COLOR_Z, width=2), name="Gz")
 
-        # Timer update (handled externally too)
-        self.win.show()
+    # -----------------------------------------------------
+
+    def _style_plot(self, plot):
+        plot.showGrid(x=True, y=True, alpha=0.15)
+        plot.addLegend(offset=(10, 10))
+        plot.getAxis("left").setPen(GRID_COLOR)
+        plot.getAxis("bottom").setPen(GRID_COLOR)
+        plot.setMenuEnabled(False)
 
     # -----------------------------------------------------
 
